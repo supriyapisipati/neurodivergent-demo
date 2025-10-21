@@ -8,6 +8,10 @@ import json
 import os
 from datetime import datetime, timedelta
 from focus_techniques import FocusTechniqueManager, PomodoroTimer
+import requests
+import base64
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Page configuration
 st.set_page_config(
@@ -90,29 +94,153 @@ def initialize_session_state():
     
     if 'user_context' not in st.session_state:
         st.session_state.user_context = ""
+    
+    if 'gmail_connected' not in st.session_state:
+        st.session_state.gmail_connected = False
+    
+    if 'user_deadlines' not in st.session_state:
+        st.session_state.user_deadlines = []
+    
+    if 'calendar_events' not in st.session_state:
+        st.session_state.calendar_events = []
 
-def demo_task_breakdown(task: str, user_context: str = "") -> dict:
+def get_gmail_deadlines(gmail_address):
+    """Simulate getting deadlines from Gmail (demo version)"""
+    # In a real implementation, this would use Gmail API
+    # For demo purposes, we'll return sample deadlines
+    sample_deadlines = [
+        {
+            "title": "Quarterly Report Due",
+            "date": "2024-01-15",
+            "priority": "high",
+            "source": "email from SEC"
+        },
+        {
+            "title": "Board Meeting Preparation",
+            "date": "2024-01-20",
+            "priority": "medium",
+            "source": "calendar invite"
+        },
+        {
+            "title": "Audit Review Meeting",
+            "date": "2024-01-25",
+            "priority": "high",
+            "source": "email from auditor"
+        },
+        {
+            "title": "Tax Filing Deadline",
+            "date": "2024-01-31",
+            "priority": "high",
+            "source": "IRS reminder email"
+        }
+    ]
+    
+    return sample_deadlines
+
+def analyze_deadlines_for_task(task, deadlines):
+    """Analyze deadlines to provide personalized task breakdown"""
+    relevant_deadlines = []
+    urgency_level = "medium"
+    
+    # Check for relevant deadlines
+    for deadline in deadlines:
+        if any(keyword in task.lower() for keyword in ["report", "quarterly", "audit", "tax", "meeting"]):
+            if any(keyword in deadline["title"].lower() for keyword in ["report", "quarterly", "audit", "tax", "meeting"]):
+                relevant_deadlines.append(deadline)
+    
+    # Determine urgency
+    if relevant_deadlines:
+        high_priority_count = sum(1 for d in relevant_deadlines if d["priority"] == "high")
+        if high_priority_count > 0:
+            urgency_level = "high"
+        elif len(relevant_deadlines) > 2:
+            urgency_level = "high"
+    
+    return relevant_deadlines, urgency_level
+
+def personalize_task_breakdown(task, breakdown, deadlines, urgency):
+    """Personalize task breakdown based on deadlines and urgency"""
+    personalized_breakdown = breakdown.copy()
+    
+    # Add deadline context
+    if deadlines:
+        deadline_context = f"📅 **Upcoming Deadlines:**\n"
+        for deadline in deadlines[:3]:  # Show top 3 relevant deadlines
+            deadline_context += f"• {deadline['title']} - {deadline['date']} ({deadline['priority']} priority)\n"
+        
+        personalized_breakdown["deadline_context"] = deadline_context
+    
+    # Adjust time estimates based on urgency
+    if urgency == "high":
+        # Reduce time estimates for urgent tasks
+        for step in personalized_breakdown["steps"]:
+            current_time = int(step["estimated_time"])
+            step["estimated_time"] = str(max(5, current_time - 5))  # Reduce by 5 minutes, minimum 5
+        personalized_breakdown["urgency_note"] = "⚡ **High Priority Task** - Time estimates have been adjusted for urgency"
+    elif urgency == "low":
+        # Increase time estimates for less urgent tasks
+        for step in personalized_breakdown["steps"]:
+            current_time = int(step["estimated_time"])
+            step["estimated_time"] = str(current_time + 5)  # Add 5 minutes
+        personalized_breakdown["urgency_note"] = "🐌 **Low Priority Task** - You have more time to work on this"
+    
+    # Add deadline-specific tips
+    if deadlines:
+        personalized_breakdown["deadline_tips"] = [
+            "Set up calendar reminders for each step",
+            "Break work into smaller chunks to meet deadlines",
+            "Ask for help if you're falling behind",
+            "Prioritize the most critical sections first"
+        ]
+    
+    return personalized_breakdown
+
+def demo_task_breakdown(task: str, user_context: str = "", gmail_address: str = None) -> dict:
     """Demo version of task breakdown (no API key required)"""
+    
+    # Get deadlines if Gmail is connected
+    deadlines = []
+    urgency = "medium"
+    if gmail_address:
+        try:
+            # Check if session state is available (when running in Streamlit)
+            if hasattr(st.session_state, 'gmail_connected') and st.session_state.gmail_connected:
+                deadlines = get_gmail_deadlines(gmail_address)
+                relevant_deadlines, urgency = analyze_deadlines_for_task(task, deadlines)
+                st.session_state.user_deadlines = deadlines
+            else:
+                # Demo mode - simulate Gmail connection
+                deadlines = get_gmail_deadlines(gmail_address)
+                relevant_deadlines, urgency = analyze_deadlines_for_task(task, deadlines)
+        except:
+            # Fallback for when session state is not available
+            deadlines = get_gmail_deadlines(gmail_address)
+            relevant_deadlines, urgency = analyze_deadlines_for_task(task, deadlines)
     
     # Pre-defined breakdowns for common tasks
     demo_breakdowns = {
         "prepare quarterly report": {
             "steps": [
-                {"description": "Set up your document and add the title", "estimated_time": "5", "tips": "Start with 'Q[1-4] [Year] Quarterly Report' - don't overthink it!"},
-                {"description": "Gather all necessary data and documents", "estimated_time": "15", "tips": "Use a timer and take breaks every 15 minutes"},
-                {"description": "Create an outline with main sections", "estimated_time": "10", "tips": "Use bullet points: Executive Summary, Key Metrics, Challenges, Next Steps"},
-                {"description": "Write the Executive Summary (2-3 paragraphs)", "estimated_time": "20", "tips": "Start with key points, details can come later"},
-                {"description": "Add your key metrics section with numbers", "estimated_time": "15", "tips": "Use bullet points and simple tables"},
-                {"description": "Write about challenges and solutions", "estimated_time": "15", "tips": "Be honest and specific - what went wrong and how you fixed it"},
-                {"description": "Add charts and graphs to visualize data", "estimated_time": "20", "tips": "Use simple charts - bar graphs and pie charts work well"},
-                {"description": "Write the 'Next Quarter Goals' section", "estimated_time": "10", "tips": "Keep it simple - 3-5 specific goals"},
-                {"description": "Review and edit the final report", "estimated_time": "15", "tips": "Read it out loud to catch any issues"},
-                {"description": "Add your signature and date", "estimated_time": "2", "tips": "You're almost done! Just add your name and today's date"}
+                {"description": "Create the Cover Page with company details", "estimated_time": "10", "tips": "Add company name, ticker symbol, CIK, quarter/year, filing date, and SEC file number"},
+                {"description": "Set up Part I - Financial Information section", "estimated_time": "5", "tips": "Create headers for Item 1 (Financial Statements) and Item 2 (MD&A)"},
+                {"description": "Add Condensed Consolidated Balance Sheets", "estimated_time": "30", "tips": "Include assets, liabilities, and shareholders' equity for current quarter and prior year-end"},
+                {"description": "Create Income Statement (Operations)", "estimated_time": "25", "tips": "Show revenue, expenses, net income/loss for current quarter and YTD vs. prior year"},
+                {"description": "Add Comprehensive Income Statement", "estimated_time": "20", "tips": "Include net income plus other comprehensive income (foreign currency, unrealized gains/losses)"},
+                {"description": "Create Cash Flow Statement", "estimated_time": "25", "tips": "Show cash from operating, investing, and financing activities (current quarter and YTD vs. prior year)"},
+                {"description": "Add Shareholders' Equity Statement", "estimated_time": "20", "tips": "Document changes in stock, retained earnings, treasury stock, etc."},
+                {"description": "Write Notes to Financial Statements", "estimated_time": "45", "tips": "Include critical accounting policies, segment info, debt, legal proceedings, risks, subsequent events"},
+                {"description": "Write Management's Discussion & Analysis (MD&A)", "estimated_time": "60", "tips": "Explain results of operations, liquidity, trends, risks, uncertainties, and critical accounting estimates"},
+                {"description": "Add Market Risk Disclosures (Item 3)", "estimated_time": "20", "tips": "Document exposure to interest rate, foreign currency, commodity price, or equity price risks"},
+                {"description": "Complete Controls and Procedures (Item 4)", "estimated_time": "15", "tips": "Evaluate disclosure controls and internal controls, get CEO and CFO signatures"},
+                {"description": "Add Part II - Other Information", "estimated_time": "30", "tips": "Include legal proceedings, risk factors, unregistered sales, defaults, other material events"},
+                {"description": "Create Exhibits section", "estimated_time": "20", "tips": "List certifications, press releases, material contracts, XBRL data files"},
+                {"description": "Add required signatures", "estimated_time": "5", "tips": "Get signatures from principal executive and financial officers"},
+                {"description": "Final review and compliance check", "estimated_time": "30", "tips": "Ensure GAAP compliance, check filing deadlines (40-45 days after quarter-end), review for completeness"}
             ],
-            "focus_techniques": ["Pomodoro technique (25 min work, 5 min break)", "Body doubling with a colleague", "Use a focus app like Forest"],
-            "accommodations": ["Use noise-cancelling headphones", "Set up a comfortable workspace", "Take sensory breaks when needed", "Ask for help if you get stuck"],
-            "sensory_tips": ["Use natural lighting if possible", "Try instrumental music for focus", "Have fidget tools nearby", "Take movement breaks every hour"],
-            "encouragement": "You've got this! Remember, progress not perfection. Every small step counts!"
+            "focus_techniques": ["Time blocking for each financial statement", "Pomodoro technique (25 min work, 5 min break)", "Body doubling with accounting team", "Use focus app like Forest", "Break into morning/afternoon sessions"],
+            "accommodations": ["Use noise-cancelling headphones", "Set up a comfortable workspace with dual monitors", "Take sensory breaks when needed", "Ask for help from accounting team", "Use templates and checklists", "Have backup data sources ready"],
+            "sensory_tips": ["Use natural lighting if possible", "Try instrumental music for focus", "Have fidget tools nearby", "Take movement breaks every hour", "Use comfortable ergonomic setup", "Keep water and healthy snacks nearby"],
+            "encouragement": "Quarterly reports are complex but you've got this! Take it one financial statement at a time. Remember, progress not perfection - every section completed is a win!"
         },
         "clean my room": {
             "steps": [
@@ -188,29 +316,57 @@ def demo_task_breakdown(task: str, user_context: str = "") -> dict:
     
     # Try to find a matching breakdown
     task_lower = task.lower()
-    for key, breakdown in demo_breakdowns.items():
+    breakdown = None
+    for key, bd in demo_breakdowns.items():
         if key in task_lower:
-            return breakdown
+            breakdown = bd
+            break
     
     # Default breakdown for any task
-    return {
-        "steps": [
-            {"description": f"Start with: {task}", "estimated_time": "15", "tips": "Break it into smaller pieces"},
-            {"description": "Take a 5-minute break", "estimated_time": "5", "tips": "Rest and recharge"},
-            {"description": "Continue with the next part", "estimated_time": "15", "tips": "Keep going at your own pace"},
-            {"description": "Review what you've accomplished", "estimated_time": "10", "tips": "Celebrate your progress"}
-        ],
-        "focus_techniques": ["Pomodoro technique", "Body doubling", "Time blocking"],
-        "accommodations": ["Use timers", "Take frequent breaks", "Ask for help when needed"],
-        "sensory_tips": ["Comfortable lighting", "Noise-cancelling headphones", "Fidget tools"],
-        "encouragement": "Remember: progress, not perfection. You're doing great!"
-    }
+    if not breakdown:
+        breakdown = {
+            "steps": [
+                {"description": f"Start with: {task}", "estimated_time": "15", "tips": "Break it into smaller pieces"},
+                {"description": "Take a 5-minute break", "estimated_time": "5", "tips": "Rest and recharge"},
+                {"description": "Continue with the next part", "estimated_time": "15", "tips": "Keep going at your own pace"},
+                {"description": "Review what you've accomplished", "estimated_time": "10", "tips": "Celebrate your progress"}
+            ],
+            "focus_techniques": ["Pomodoro technique", "Body doubling", "Time blocking"],
+            "accommodations": ["Use timers", "Take frequent breaks", "Ask for help when needed"],
+            "sensory_tips": ["Comfortable lighting", "Noise-cancelling headphones", "Fidget tools"],
+            "encouragement": "Remember: progress, not perfection. You're doing great!"
+        }
+    
+    # Personalize based on deadlines and urgency
+    if gmail_address and deadlines:
+        relevant_deadlines, urgency = analyze_deadlines_for_task(task, deadlines)
+        breakdown = personalize_task_breakdown(task, breakdown, relevant_deadlines, urgency)
+    
+    return breakdown
 
 def display_task_breakdown(breakdown):
     """Display the task breakdown in a user-friendly format"""
     if 'error' in breakdown:
         st.error(breakdown['error'])
         return
+    
+    # Show deadline context if available
+    if 'deadline_context' in breakdown:
+        st.markdown(f"""
+        <div class="demo-notice">
+            <h4>📅 Deadline Information</h4>
+            <p>{breakdown['deadline_context']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Show urgency note if available
+    if 'urgency_note' in breakdown:
+        st.markdown(f"""
+        <div class="encouragement-box">
+            <h4>⚡ Priority Level</h4>
+            <p>{breakdown['urgency_note']}</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Steps
     st.subheader("📝 Your Step-by-Step Plan")
@@ -245,6 +401,12 @@ def display_task_breakdown(breakdown):
                 {tip}
             </div>
             """, unsafe_allow_html=True)
+    
+    # Deadline-specific tips
+    if breakdown.get('deadline_tips'):
+        st.subheader("⏰ Deadline Management Tips")
+        for tip in breakdown['deadline_tips']:
+            st.markdown(f"• {tip}")
     
     # Encouragement
     if breakdown.get('encouragement'):
@@ -282,6 +444,7 @@ def main():
             "Task Breakdown",
             "Focus Sessions", 
             "Focus Techniques",
+            "Gmail Integration",
             "About FocusCoach"
         ])
         
@@ -292,6 +455,30 @@ def main():
             help="Share any specific challenges, preferences, or accommodations you need"
         )
         
+        # Gmail Integration
+        st.header("📧 Gmail Integration")
+        gmail_address = st.text_input(
+            "Gmail Address (Optional):",
+            placeholder="your.email@gmail.com",
+            help="Connect your Gmail to get personalized deadline information"
+        )
+        
+        if st.button("🔗 Connect Gmail", type="secondary"):
+            if gmail_address and "@gmail.com" in gmail_address:
+                st.session_state.gmail_connected = True
+                st.success("✅ Gmail connected! I'll analyze your deadlines.")
+                # Get deadlines
+                st.session_state.user_deadlines = get_gmail_deadlines(gmail_address)
+            else:
+                st.warning("Please enter a valid Gmail address")
+        
+        if st.session_state.gmail_connected:
+            st.success("📧 Gmail Connected")
+            if st.session_state.user_deadlines:
+                st.write("**Upcoming Deadlines:**")
+                for deadline in st.session_state.user_deadlines[:3]:
+                    st.write(f"• {deadline['title']} - {deadline['date']}")
+        
         # Quick tips
         st.header("💡 Quick Tips")
         st.markdown("""
@@ -299,6 +486,7 @@ def main():
         - Use timers for focus sessions
         - Take breaks when you need them
         - Celebrate small wins!
+        - Connect Gmail for personalized deadlines
         """)
     
     # Main content based on selected page
@@ -308,6 +496,8 @@ def main():
         focus_sessions_page()
     elif page == "Focus Techniques":
         focus_techniques_page()
+    elif page == "Gmail Integration":
+        gmail_integration_page()
     elif page == "About FocusCoach":
         about_page()
 
@@ -326,7 +516,13 @@ def task_breakdown_page():
     if st.button("🚀 Break Down This Task", type="primary"):
         if task.strip():
             with st.spinner("Creating a neurodivergent-friendly plan..."):
-                breakdown = demo_task_breakdown(task, st.session_state.user_context)
+                # Get Gmail address from sidebar if connected
+                gmail_address = None
+                if st.session_state.gmail_connected:
+                    # In a real app, this would come from the sidebar input
+                    gmail_address = "demo@example.com"  # Demo Gmail address
+                
+                breakdown = demo_task_breakdown(task, st.session_state.user_context, gmail_address)
                 st.session_state.task_breakdown = breakdown
             
             display_task_breakdown(breakdown)
@@ -464,6 +660,90 @@ def focus_techniques_page():
                 for tip in tips:
                     st.write(f"• {tip}")
 
+def gmail_integration_page():
+    """Gmail integration and deadline management"""
+    st.header("📧 Gmail Integration & Deadline Management")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🔗 Connect Your Gmail")
+        st.markdown("""
+        Connect your Gmail to get personalized task breakdowns based on your deadlines and schedule.
+        
+        **Benefits:**
+        - Personalized time estimates based on urgency
+        - Deadline-aware task prioritization
+        - Calendar integration for better planning
+        - Automatic deadline reminders
+        """)
+        
+        gmail_address = st.text_input(
+            "Enter your Gmail address:",
+            placeholder="your.email@gmail.com",
+            help="We'll analyze your emails for deadlines and important dates"
+        )
+        
+        if st.button("🔗 Connect Gmail", type="primary"):
+            if gmail_address and "@gmail.com" in gmail_address:
+                st.session_state.gmail_connected = True
+                st.session_state.user_deadlines = get_gmail_deadlines(gmail_address)
+                st.success("✅ Gmail connected successfully!")
+            else:
+                st.warning("Please enter a valid Gmail address")
+    
+    with col2:
+        st.subheader("📅 Your Deadlines")
+        
+        if st.session_state.gmail_connected and st.session_state.user_deadlines:
+            st.success("📧 Gmail Connected")
+            
+            for deadline in st.session_state.user_deadlines:
+                priority_color = "🔴" if deadline["priority"] == "high" else "🟡" if deadline["priority"] == "medium" else "🟢"
+                st.markdown(f"""
+                <div class="step-card">
+                    <h4>{priority_color} {deadline['title']}</h4>
+                    <p><strong>Date:</strong> {deadline['date']}</p>
+                    <p><strong>Priority:</strong> {deadline['priority']}</p>
+                    <p><strong>Source:</strong> {deadline['source']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("Connect your Gmail to see your deadlines and get personalized task breakdowns")
+    
+    st.subheader("🎯 How Gmail Integration Helps")
+    
+    benefits = [
+        {
+            "title": "Personalized Time Estimates",
+            "description": "Task breakdowns adjust based on your actual deadlines and urgency levels"
+        },
+        {
+            "title": "Deadline Awareness",
+            "description": "See relevant deadlines when breaking down tasks like quarterly reports"
+        },
+        {
+            "title": "Priority Management",
+            "description": "High-priority tasks get faster time estimates and urgent accommodations"
+        },
+        {
+            "title": "Calendar Integration",
+            "description": "Schedule focus sessions around your existing commitments"
+        }
+    ]
+    
+    for benefit in benefits:
+        with st.expander(f"🎯 {benefit['title']}"):
+            st.write(benefit['description'])
+    
+    st.subheader("🔒 Privacy & Security")
+    st.markdown("""
+    - **Demo Mode**: This demo uses sample data for demonstration
+    - **Real Integration**: In the full version, we use secure OAuth2 authentication
+    - **Data Privacy**: Your emails are never stored or shared
+    - **Local Processing**: All analysis happens securely on your device
+    """)
+
 def about_page():
     """About FocusCoach"""
     st.header("🧠 About FocusCoach")
@@ -546,3 +826,4 @@ def about_page():
 
 if __name__ == "__main__":
     main()
+
