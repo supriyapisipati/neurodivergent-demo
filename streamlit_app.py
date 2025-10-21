@@ -426,6 +426,12 @@ def initialize_session_state():
         st.session_state.calendar_reminders_enabled = False
     if 'reminder_frequency' not in st.session_state:
         st.session_state.reminder_frequency = "30 minutes before"
+    if 'mandatory_reminders_enabled' not in st.session_state:
+        st.session_state.mandatory_reminders_enabled = True
+    if 'task_reminders' not in st.session_state:
+        st.session_state.task_reminders = {}
+    if 'meeting_reminders' not in st.session_state:
+        st.session_state.meeting_reminders = {}
 
 def send_to_slack(task_breakdown, workspace, channel):
     """Simulate sending task breakdown to Slack (demo version)"""
@@ -562,6 +568,46 @@ def send_calendar_reminder_to_slack(event, workspace, channel, reminder_type="up
         "reminder": reminder_message,
         "slack_message": slack_message
     }
+
+def schedule_mandatory_reminder(task_name, event_type, reminder_times, calendar_event=None):
+    """Schedule mandatory reminders for tasks or meetings"""
+    from datetime import datetime, timedelta
+    
+    reminder_schedule = {
+        "task_name": task_name,
+        "event_type": event_type,
+        "reminder_times": reminder_times,
+        "scheduled_at": datetime.now(),
+        "calendar_event": calendar_event,
+        "status": "scheduled"
+    }
+    
+    # Store in session state
+    if event_type == "task":
+        st.session_state.task_reminders[task_name] = reminder_schedule
+    else:
+        st.session_state.meeting_reminders[task_name] = reminder_schedule
+    
+    return reminder_schedule
+
+def validate_reminder_schedule(task_name, event_type):
+    """Check if mandatory reminders are scheduled for a task/meeting"""
+    if event_type == "task":
+        return task_name in st.session_state.task_reminders
+    else:
+        return task_name in st.session_state.meeting_reminders
+
+def get_upcoming_calendar_events_with_reminders():
+    """Get calendar events that need reminder scheduling"""
+    calendar_events = get_calendar_events()
+    events_needing_reminders = []
+    
+    for event in calendar_events:
+        # Check if reminders are already scheduled
+        if not validate_reminder_schedule(event['title'], event['type']):
+            events_needing_reminders.append(event)
+    
+    return events_needing_reminders
 
 def get_gmail_deadlines(gmail_address):
     """Simulate getting deadlines from Gmail (demo version)"""
@@ -1070,6 +1116,7 @@ def main():
             "Focus Techniques",
             "Gmail Integration",
             "Slack Integration",
+            "Reminder Scheduler",
             "About FocusCoach"
         ], help="Select what you'd like to work on")
         
@@ -1086,6 +1133,23 @@ def main():
         st.markdown("### 🎯 Focus Preferences")
         focus_duration = st.slider("Preferred focus time (minutes)", 5, 60, 25, help="How long do you like to focus at once?")
         break_duration = st.slider("Preferred break time (minutes)", 2, 30, 5, help="How long do you like your breaks?")
+        
+        # Reminder preferences
+        st.markdown("### ⏰ Reminder Settings")
+        reminder_frequency = st.selectbox(
+            "Default Reminder Frequency",
+            ["15 minutes before", "30 minutes before", "1 hour before", "2 hours before", "1 day before"],
+            index=1,
+            help="How far in advance do you want to be reminded?"
+        )
+        st.session_state.reminder_frequency = reminder_frequency
+        
+        mandatory_reminders = st.checkbox(
+            "Enable Mandatory Reminders",
+            value=st.session_state.mandatory_reminders_enabled,
+            help="Require reminder scheduling before completing tasks"
+        )
+        st.session_state.mandatory_reminders_enabled = mandatory_reminders
         
         # Gmail Integration
         st.markdown("### 📧 Gmail Integration")
@@ -1156,6 +1220,8 @@ def main():
         gmail_integration_page()
     elif page == "Slack Integration":
         slack_integration_page()
+    elif page == "Reminder Scheduler":
+        reminder_scheduler_page()
     elif page == "About FocusCoach":
         about_page()
 
@@ -1381,6 +1447,55 @@ def task_breakdown_page():
     with col2:
         if st.button("🚀 Break Down This Task", type="primary", use_container_width=True):
             if task and task.strip():
+                # Check if mandatory reminders are enabled
+                if st.session_state.mandatory_reminders_enabled:
+                    # Check if reminders are already scheduled for this task
+                    if not validate_reminder_schedule(task, "task"):
+                        st.warning("⚠️ **Mandatory Reminders Required**")
+                        st.markdown(f"""
+                        <div class="break-card">
+                            <h4>📅 Schedule Reminders for "{task}"</h4>
+                            <p>Before proceeding with this task breakdown, you must schedule reminders to ensure you stay on track!</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Quick reminder scheduling
+                        st.markdown("### ⏰ Quick Reminder Setup")
+                        st.info(f"💡 **Default reminder frequency**: {st.session_state.reminder_frequency}")
+                        
+                        col1, col2, col3 = st.columns(3)
+                        
+                        with col1:
+                            reminder_15 = st.checkbox("15 minutes before", key="manual_quick_15")
+                        with col2:
+                            reminder_30 = st.checkbox("30 minutes before", key="manual_quick_30")
+                        with col3:
+                            reminder_1h = st.checkbox("1 hour before", key="manual_quick_1h")
+                        
+                        # Add default frequency as pre-selected
+                        default_selected = st.checkbox(f"Use default: {st.session_state.reminder_frequency}", value=True, key="manual_default")
+                        
+                        selected_quick_reminders = []
+                        if default_selected:
+                            selected_quick_reminders.append(st.session_state.reminder_frequency)
+                        if reminder_15:
+                            selected_quick_reminders.append("15 minutes before")
+                        if reminder_30:
+                            selected_quick_reminders.append("30 minutes before")
+                        if reminder_1h:
+                            selected_quick_reminders.append("1 hour before")
+                        
+                        if st.button("✅ Schedule Reminders & Continue", type="primary", key="manual_schedule"):
+                            if selected_quick_reminders:
+                                # Schedule reminders
+                                schedule_mandatory_reminder(task, "task", selected_quick_reminders)
+                                st.success("✅ Reminders scheduled! Proceeding with task breakdown...")
+                                st.rerun()
+                            else:
+                                st.error("Please select at least one reminder time!")
+                        else:
+                            st.stop()
+                
                 with st.spinner("Creating a neurodivergent-friendly plan..."):
                     # Get Gmail address from sidebar if connected
                     gmail_address = None
@@ -1402,6 +1517,56 @@ def task_breakdown_page():
     
     # Auto-trigger breakdown if button was clicked
     if button_clicked and task and task.strip():
+        # Check if mandatory reminders are enabled
+        if st.session_state.mandatory_reminders_enabled:
+            # Check if reminders are already scheduled for this task
+            if not validate_reminder_schedule(task, "task"):
+                st.warning("⚠️ **Mandatory Reminders Required**")
+                st.markdown(f"""
+                <div class="break-card">
+                    <h4>📅 Schedule Reminders for "{task}"</h4>
+                    <p>Before proceeding with this task breakdown, you must schedule reminders to ensure you stay on track!</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Quick reminder scheduling
+                st.markdown("### ⏰ Quick Reminder Setup")
+                st.info(f"💡 **Default reminder frequency**: {st.session_state.reminder_frequency}")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    reminder_15 = st.checkbox("15 minutes before", key="quick_15")
+                with col2:
+                    reminder_30 = st.checkbox("30 minutes before", key="quick_30")
+                with col3:
+                    reminder_1h = st.checkbox("1 hour before", key="quick_1h")
+                
+                # Add default frequency as pre-selected
+                default_selected = st.checkbox(f"Use default: {st.session_state.reminder_frequency}", value=True, key="auto_default")
+                
+                selected_quick_reminders = []
+                if default_selected:
+                    selected_quick_reminders.append(st.session_state.reminder_frequency)
+                if reminder_15:
+                    selected_quick_reminders.append("15 minutes before")
+                if reminder_30:
+                    selected_quick_reminders.append("30 minutes before")
+                if reminder_1h:
+                    selected_quick_reminders.append("1 hour before")
+                
+                if st.button("✅ Schedule Reminders & Continue", type="primary"):
+                    if selected_quick_reminders:
+                        # Schedule reminders
+                        schedule_mandatory_reminder(task, "task", selected_quick_reminders)
+                        st.success("✅ Reminders scheduled! Proceeding with task breakdown...")
+                        st.rerun()
+                    else:
+                        st.error("Please select at least one reminder time!")
+                        st.stop()
+                else:
+                    st.stop()
+        
         with st.spinner("Creating a neurodivergent-friendly plan..."):
             # Get Gmail address from sidebar if connected
             gmail_address = None
@@ -1418,6 +1583,14 @@ def task_breakdown_page():
         st.session_state.completed_tasks += 1
         
         display_task_breakdown(breakdown)
+    
+    # Show reminder settings status
+    if st.session_state.mandatory_reminders_enabled:
+        st.markdown("""
+        <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 1rem 0;">
+            <p style="margin: 0; color: #92400e;"><strong>⏰ Mandatory Reminders Enabled</strong> - Default frequency: {reminder_frequency}</p>
+        </div>
+        """.format(reminder_frequency=st.session_state.reminder_frequency), unsafe_allow_html=True)
     
     # Show progress if tasks have been completed
     if st.session_state.get('completed_tasks', 0) > 0:
@@ -1829,6 +2002,156 @@ def slack_integration_page():
         - **Workplace Integration**: Fits naturally into professional workflows
         - **Progress Visibility**: Team can see your achievements
         """)
+
+def reminder_scheduler_page():
+    """Mandatory reminder scheduling page"""
+    st.header("⏰ Mandatory Reminder Scheduler")
+    
+    st.markdown("""
+    <div class="demo-notice">
+        <h3>📅 Schedule Required Reminders</h3>
+        <p>Set up mandatory reminders for all your tasks and meetings based on your Google Calendar events. This ensures you never miss important deadlines or appointments.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Mandatory reminder settings
+    st.markdown("### ⚙️ Reminder Settings")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        mandatory_enabled = st.checkbox(
+            "Enable Mandatory Reminders",
+            value=st.session_state.mandatory_reminders_enabled,
+            help="Require reminder scheduling before completing tasks"
+        )
+        st.session_state.mandatory_reminders_enabled = mandatory_enabled
+    
+    with col2:
+        default_frequency = st.selectbox(
+            "Default Reminder Frequency",
+            ["15 minutes before", "30 minutes before", "1 hour before", "2 hours before", "1 day before"],
+            index=1,
+            help="Default reminder timing for new events"
+        )
+    
+    st.markdown("---")
+    
+    # Show upcoming calendar events that need reminders
+    st.markdown("### 📅 Calendar Events Requiring Reminders")
+    
+    events_needing_reminders = get_upcoming_calendar_events_with_reminders()
+    
+    if events_needing_reminders:
+        st.warning(f"⚠️ **{len(events_needing_reminders)} events** need reminder scheduling!")
+        
+        for i, event in enumerate(events_needing_reminders):
+            with st.expander(f"📅 {event['title']} - {event['start_time'].strftime('%I:%M %p')}", expanded=True):
+                col1, col2 = st.columns([2, 1])
+                
+                with col1:
+                    st.markdown(f"**Event Type**: {event['type'].title()}")
+                    st.markdown(f"**Priority**: {event['priority'].title()}")
+                    st.markdown(f"**Date**: {event['start_time'].strftime('%B %d, %Y at %I:%M %p')}")
+                    
+                    # Reminder frequency selection
+                    st.markdown("**Select Reminder Times:**")
+                    
+                    reminder_options = {
+                        "15 minutes before": st.checkbox(f"15 minutes before", key=f"reminder_15_{i}"),
+                        "30 minutes before": st.checkbox(f"30 minutes before", key=f"reminder_30_{i}"),
+                        "1 hour before": st.checkbox(f"1 hour before", key=f"reminder_1h_{i}"),
+                        "2 hours before": st.checkbox(f"2 hours before", key=f"reminder_2h_{i}"),
+                        "1 day before": st.checkbox(f"1 day before", key=f"reminder_1d_{i}")
+                    }
+                    
+                    # Get selected reminders
+                    selected_reminders = [time for time, selected in reminder_options.items() if selected]
+                
+                with col2:
+                    if st.button(f"✅ Schedule Reminders", key=f"schedule_{i}", type="primary"):
+                        if selected_reminders:
+                            # Schedule the reminders
+                            schedule_mandatory_reminder(
+                                event['title'], 
+                                event['type'], 
+                                selected_reminders, 
+                                event
+                            )
+                            st.success(f"✅ Reminders scheduled for {event['title']}")
+                            st.rerun()
+                        else:
+                            st.error("Please select at least one reminder time!")
+                    
+                    # Show reminder status
+                    if validate_reminder_schedule(event['title'], event['type']):
+                        st.success("✅ Reminders Scheduled")
+                    else:
+                        st.error("❌ No Reminders Set")
+    else:
+        st.success("✅ All calendar events have reminders scheduled!")
+    
+    st.markdown("---")
+    
+    # Show scheduled reminders
+    st.markdown("### 📋 Currently Scheduled Reminders")
+    
+    # Task reminders
+    if st.session_state.task_reminders:
+        st.markdown("#### 📝 Task Reminders")
+        for task_name, reminder_info in st.session_state.task_reminders.items():
+            with st.expander(f"📝 {task_name}", expanded=False):
+                st.markdown(f"**Scheduled**: {reminder_info['scheduled_at'].strftime('%B %d, %Y at %I:%M %p')}")
+                st.markdown(f"**Reminder Times**: {', '.join(reminder_info['reminder_times'])}")
+                st.markdown(f"**Status**: {reminder_info['status']}")
+                
+                if st.button(f"🗑️ Remove Reminders", key=f"remove_task_{task_name}"):
+                    del st.session_state.task_reminders[task_name]
+                    st.rerun()
+    
+    # Meeting reminders
+    if st.session_state.meeting_reminders:
+        st.markdown("#### 👥 Meeting Reminders")
+        for meeting_name, reminder_info in st.session_state.meeting_reminders.items():
+            with st.expander(f"👥 {meeting_name}", expanded=False):
+                st.markdown(f"**Scheduled**: {reminder_info['scheduled_at'].strftime('%B %d, %Y at %I:%M %p')}")
+                st.markdown(f"**Reminder Times**: {', '.join(reminder_info['reminder_times'])}")
+                st.markdown(f"**Status**: {reminder_info['status']}")
+                
+                if st.button(f"🗑️ Remove Reminders", key=f"remove_meeting_{meeting_name}"):
+                    del st.session_state.meeting_reminders[meeting_name]
+                    st.rerun()
+    
+    if not st.session_state.task_reminders and not st.session_state.meeting_reminders:
+        st.info("No reminders currently scheduled. Add some calendar events to get started!")
+    
+    st.markdown("---")
+    
+    # Integration with task breakdown
+    st.markdown("### 🔗 Integration with Task Breakdown")
+    
+    if st.session_state.mandatory_reminders_enabled:
+        st.markdown("""
+        <div class="encouragement-box">
+            <h4>✅ Mandatory Reminders Enabled</h4>
+            <p>When you create task breakdowns, you'll be required to schedule reminders before proceeding. This ensures you stay on track with your goals!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("**How it works:**")
+        st.markdown("""
+        1. **Create Task Breakdown**: Use the Task Breakdown page as usual
+        2. **Schedule Reminders**: You'll be prompted to set reminder times
+        3. **Complete Tasks**: Only after reminders are scheduled can you proceed
+        4. **Get Notified**: Receive gentle, encouraging reminders via Slack
+        """)
+    else:
+        st.markdown("""
+        <div class="break-card">
+            <h4>⚠️ Mandatory Reminders Disabled</h4>
+            <p>Enable mandatory reminders to ensure you never miss important tasks or meetings!</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 def about_page():
     """About FocusCoach"""
