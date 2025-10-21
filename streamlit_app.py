@@ -98,11 +98,16 @@ def demo_task_breakdown(task: str, user_context: str = "") -> dict:
     demo_breakdowns = {
         "prepare quarterly report": {
             "steps": [
+                {"description": "Set up your document and add the title", "estimated_time": "5", "tips": "Start with 'Q[1-4] [Year] Quarterly Report' - don't overthink it!"},
                 {"description": "Gather all necessary data and documents", "estimated_time": "15", "tips": "Use a timer and take breaks every 15 minutes"},
-                {"description": "Create an outline of the report structure", "estimated_time": "10", "tips": "Use bullet points and don't worry about perfection"},
-                {"description": "Write the introduction section", "estimated_time": "20", "tips": "Start with key points, details can come later"},
-                {"description": "Compile data into charts and graphs", "estimated_time": "25", "tips": "Use visual tools that work for your brain"},
-                {"description": "Review and edit the final report", "estimated_time": "15", "tips": "Read it out loud to catch any issues"}
+                {"description": "Create an outline with main sections", "estimated_time": "10", "tips": "Use bullet points: Executive Summary, Key Metrics, Challenges, Next Steps"},
+                {"description": "Write the Executive Summary (2-3 paragraphs)", "estimated_time": "20", "tips": "Start with key points, details can come later"},
+                {"description": "Add your key metrics section with numbers", "estimated_time": "15", "tips": "Use bullet points and simple tables"},
+                {"description": "Write about challenges and solutions", "estimated_time": "15", "tips": "Be honest and specific - what went wrong and how you fixed it"},
+                {"description": "Add charts and graphs to visualize data", "estimated_time": "20", "tips": "Use simple charts - bar graphs and pie charts work well"},
+                {"description": "Write the 'Next Quarter Goals' section", "estimated_time": "10", "tips": "Keep it simple - 3-5 specific goals"},
+                {"description": "Review and edit the final report", "estimated_time": "15", "tips": "Read it out loud to catch any issues"},
+                {"description": "Add your signature and date", "estimated_time": "2", "tips": "You're almost done! Just add your name and today's date"}
             ],
             "focus_techniques": ["Pomodoro technique (25 min work, 5 min break)", "Body doubling with a colleague", "Use a focus app like Forest"],
             "accommodations": ["Use noise-cancelling headphones", "Set up a comfortable workspace", "Take sensory breaks when needed", "Ask for help if you get stuck"],
@@ -111,11 +116,14 @@ def demo_task_breakdown(task: str, user_context: str = "") -> dict:
         },
         "clean my room": {
             "steps": [
+                {"description": "Start by making your bed", "estimated_time": "3", "tips": "This gives you an instant sense of accomplishment!"},
                 {"description": "Pick up and put away 5 items", "estimated_time": "10", "tips": "Start small - even 5 items is progress"},
                 {"description": "Sort clothes into clean/dirty piles", "estimated_time": "15", "tips": "Use a timer and take breaks"},
+                {"description": "Put dirty clothes in hamper, hang clean ones", "estimated_time": "10", "tips": "Don't worry about folding perfectly - just get them off the floor"},
                 {"description": "Organize one surface (desk, dresser, etc.)", "estimated_time": "20", "tips": "Focus on one area at a time"},
                 {"description": "Take a 5-minute break", "estimated_time": "5", "tips": "Hydrate and stretch"},
-                {"description": "Tackle one more area", "estimated_time": "15", "tips": "Celebrate what you've accomplished so far"}
+                {"description": "Tackle one more area", "estimated_time": "15", "tips": "Celebrate what you've accomplished so far"},
+                {"description": "Do a final sweep - put away any remaining items", "estimated_time": "10", "tips": "You're almost done! Just a few more items to go"}
             ],
             "focus_techniques": ["Chunking technique", "Body doubling with a friend", "Use a timer for each step"],
             "accommodations": ["Play music you enjoy", "Use a comfortable outfit", "Take breaks when needed", "Ask for help if you get overwhelmed"],
@@ -124,16 +132,57 @@ def demo_task_breakdown(task: str, user_context: str = "") -> dict:
         },
         "study for exam": {
             "steps": [
+                {"description": "Gather all your study materials (books, notes, laptop)", "estimated_time": "5", "tips": "Set up your study space first - it helps your brain get ready"},
                 {"description": "Review the study guide or syllabus", "estimated_time": "15", "tips": "Don't try to memorize everything at once"},
                 {"description": "Create a study schedule for the week", "estimated_time": "10", "tips": "Break it into manageable chunks"},
-                {"description": "Study one topic for 25 minutes", "estimated_time": "25", "tips": "Use the Pomodoro technique"},
+                {"description": "Start with the easiest topic first", "estimated_time": "20", "tips": "Build confidence by starting with what you know"},
                 {"description": "Take a 5-minute break", "estimated_time": "5", "tips": "Move around and hydrate"},
-                {"description": "Review what you just studied", "estimated_time": "10", "tips": "Summarize in your own words"}
+                {"description": "Study one challenging topic for 25 minutes", "estimated_time": "25", "tips": "Use the Pomodoro technique"},
+                {"description": "Take another 5-minute break", "estimated_time": "5", "tips": "Stretch and have a snack"},
+                {"description": "Review what you just studied", "estimated_time": "10", "tips": "Summarize in your own words"},
+                {"description": "Create flashcards or summary notes", "estimated_time": "15", "tips": "Writing helps you remember better"},
+                {"description": "Test yourself on what you studied", "estimated_time": "10", "tips": "Quiz yourself - it's the best way to see what you know"}
             ],
             "focus_techniques": ["Pomodoro technique", "Active recall methods", "Study with a friend"],
             "accommodations": ["Use noise-cancelling headphones", "Find a quiet study space", "Take regular breaks", "Use study apps if helpful"],
             "sensory_tips": ["Good lighting is important", "Comfortable seating", "Have water and snacks nearby", "Take movement breaks"],
             "encouragement": "You're building knowledge step by step. You've got this!"
+        },
+        "write a blog post": {
+            "steps": [
+                {"description": "Open your document and add a working title", "estimated_time": "3", "tips": "Don't worry about the perfect title - you can change it later"},
+                {"description": "Brainstorm 5-7 key points you want to cover", "estimated_time": "10", "tips": "Use bullet points - don't overthink it"},
+                {"description": "Write the introduction paragraph", "estimated_time": "15", "tips": "Start with a hook - why should people read this?"},
+                {"description": "Write the first main point", "estimated_time": "20", "tips": "Just start writing - you can edit later"},
+                {"description": "Take a 5-minute break", "estimated_time": "5", "tips": "Step away and stretch"},
+                {"description": "Write the second main point", "estimated_time": "20", "tips": "Keep the momentum going"},
+                {"description": "Add the third main point", "estimated_time": "20", "tips": "You're getting into the flow now"},
+                {"description": "Write a conclusion paragraph", "estimated_time": "10", "tips": "Summarize your main points and add a call to action"},
+                {"description": "Read through and edit for clarity", "estimated_time": "15", "tips": "Read it out loud to catch any awkward phrases"},
+                {"description": "Add a final title and publish", "estimated_time": "5", "tips": "You did it! Time to share your thoughts with the world"}
+            ],
+            "focus_techniques": ["Pomodoro technique", "Free writing", "Body doubling with a writing partner"],
+            "accommodations": ["Use a distraction-free writing app", "Set up a comfortable writing space", "Have water and snacks nearby", "Take breaks when you get stuck"],
+            "sensory_tips": ["Good lighting is important", "Comfortable seating", "Background music if helpful", "Take movement breaks"],
+            "encouragement": "Your voice matters! Every word you write is progress."
+        },
+        "plan a presentation": {
+            "steps": [
+                {"description": "Open a new document and write your topic at the top", "estimated_time": "2", "tips": "Keep it simple - just the main topic"},
+                {"description": "Write down your main message in one sentence", "estimated_time": "5", "tips": "What do you want people to remember?"},
+                {"description": "Create an outline with 3-5 main points", "estimated_time": "15", "tips": "Use bullet points - keep it simple"},
+                {"description": "Write a brief introduction", "estimated_time": "10", "tips": "Tell them what you're going to tell them"},
+                {"description": "Develop your first main point", "estimated_time": "20", "tips": "Add examples or stories to make it interesting"},
+                {"description": "Take a 5-minute break", "estimated_time": "5", "tips": "Step away and think about your audience"},
+                {"description": "Develop your second main point", "estimated_time": "20", "tips": "Keep it relevant to your main message"},
+                {"description": "Add your third main point", "estimated_time": "20", "tips": "You're building a strong case"},
+                {"description": "Write a conclusion that summarizes your points", "estimated_time": "10", "tips": "End with a clear takeaway"},
+                {"description": "Practice your presentation out loud", "estimated_time": "15", "tips": "Practice makes perfect - you've got this!"}
+            ],
+            "focus_techniques": ["Time blocking", "Practice with a friend", "Record yourself practicing"],
+            "accommodations": ["Use presentation software you're comfortable with", "Practice in a quiet space", "Have notes as backup", "Ask for feedback from trusted people"],
+            "sensory_tips": ["Practice in the actual space if possible", "Wear comfortable clothes", "Have water nearby", "Take deep breaths before starting"],
+            "encouragement": "You have valuable insights to share. Your audience is lucky to hear from you!"
         }
     }
     
