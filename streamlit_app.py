@@ -21,27 +21,43 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for neurodivergent-friendly design
+# Professional CSS for neurodivergent-friendly design
 st.markdown("""
 <style>
-    /* Import modern fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* Import professional fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     
-    /* Root variables for consistent theming */
+    /* Professional color system */
     :root {
-        --primary-color: #6366f1;
-        --secondary-color: #8b5cf6;
+        --primary-color: #2563eb;
+        --primary-light: #3b82f6;
+        --secondary-color: #7c3aed;
+        --accent-color: #06b6d4;
         --success-color: #10b981;
         --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --info-color: #3b82f6;
-        --light-bg: #f8fafc;
-        --card-bg: #ffffff;
-        --text-primary: #1f2937;
-        --text-secondary: #6b7280;
-        --border-radius: 12px;
-        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --error-color: #ef4444;
+        --slack-color: #4a154b;
+        --slack-light: #611f69;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --border-light: #f1f5f9;
+        --border-radius: 16px;
+        --border-radius-sm: 8px;
+        --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        --gradient-info: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        --gradient-slack: linear-gradient(135deg, #4a154b 0%, #611f69 100%);
     }
     
     /* Global styles */
@@ -50,17 +66,18 @@ st.markdown("""
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     }
     
-    /* Main header with modern gradient */
+    /* Professional header */
     .main-header {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+        background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
         padding: 3rem 2rem;
         border-radius: 20px;
         color: white;
         text-align: center;
         margin-bottom: 2rem;
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--shadow-xl);
         position: relative;
         overflow: hidden;
+        border: 1px solid var(--border-light);
     }
     
     .main-header::before {
@@ -70,34 +87,59 @@ st.markdown("""
         left: 0;
         right: 0;
         bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        opacity: 0.3;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.05"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.05"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        pointer-events: none;
     }
     
     .main-header h1 {
         font-size: 3rem;
-        font-weight: 700;
+        font-weight: 800;
         margin: 0;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        letter-spacing: -0.02em;
     }
     
     .main-header p {
         font-size: 1.2rem;
-        margin: 0.5rem 0 0 0;
+        margin: 1rem 0 0 0;
         opacity: 0.9;
+        line-height: 1.5;
     }
     
-    /* Modern card design */
+    /* Professional card design */
     .step-card {
-        background: var(--card-bg);
+        background: var(--bg-primary);
         padding: 2rem;
         border-radius: var(--border-radius);
-        border-left: 6px solid var(--primary-color);
+        border: 1px solid var(--border-light);
+        border-left: 4px solid var(--primary-color);
         margin: 1.5rem 0;
-        box-shadow: var(--shadow);
-        transition: all 0.3s ease;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
+    }
+    
+    .step-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .step-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+        border-left-color: var(--primary-light);
+    }
+    
+    .step-card:hover::before {
+        opacity: 1;
     }
     
     .step-card::before {
@@ -270,6 +312,85 @@ st.markdown("""
             padding: 1.5rem;
         }
     }
+    
+    /* Slack Integration Styles */
+    .slack-integration {
+        background: var(--gradient-slack);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin: 1.5rem 0;
+        color: white;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--slack-light);
+    }
+    
+    .slack-integration h3 {
+        color: white;
+        margin-top: 0;
+        font-weight: 700;
+    }
+    
+    .slack-button {
+        background: var(--gradient-slack) !important;
+        color: white !important;
+        border: 2px solid var(--slack-light) !important;
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .slack-button:hover {
+        background: linear-gradient(135deg, #611f69 0%, #7c2d12 100%) !important;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    /* Professional Progress Indicators */
+    .progress-indicator {
+        background: var(--gradient-success);
+        height: 4px;
+        border-radius: 2px;
+        margin: 1rem 0;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    /* Enhanced Typography */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+    }
+    
+    .text-muted {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+    
+    .text-success {
+        color: var(--success-color);
+        font-weight: 600;
+    }
+    
+    .text-warning {
+        color: var(--warning-color);
+        font-weight: 600;
+    }
+    
+    .text-error {
+        color: var(--error-color);
+        font-weight: 600;
+    }
+    
+    /* Professional Sidebar */
+    .sidebar-content {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-light);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -292,6 +413,155 @@ def initialize_session_state():
     
     if 'calendar_events' not in st.session_state:
         st.session_state.calendar_events = []
+    
+    if 'slack_connected' not in st.session_state:
+        st.session_state.slack_connected = False
+    
+    if 'slack_workspace' not in st.session_state:
+        st.session_state.slack_workspace = ""
+    
+    if 'slack_channel' not in st.session_state:
+        st.session_state.slack_channel = ""
+    if 'calendar_reminders_enabled' not in st.session_state:
+        st.session_state.calendar_reminders_enabled = False
+    if 'reminder_frequency' not in st.session_state:
+        st.session_state.reminder_frequency = "30 minutes before"
+
+def send_to_slack(task_breakdown, workspace, channel):
+    """Simulate sending task breakdown to Slack (demo version)"""
+    # In a real implementation, this would use Slack API
+    # For demo purposes, we'll simulate the action
+    return {
+        "success": True,
+        "message": f"Task breakdown sent to #{channel} in {workspace} workspace",
+        "slack_url": f"https://{workspace}.slack.com/channels/{channel}"
+    }
+
+def get_calendar_events():
+    """Simulate getting calendar events (demo version)"""
+    # In a real implementation, this would use Google Calendar API
+    # For demo purposes, we'll return sample calendar events
+    from datetime import datetime, timedelta
+    
+    now = datetime.now()
+    sample_events = [
+        {
+            "title": "Team Standup",
+            "start_time": now + timedelta(hours=2),
+            "end_time": now + timedelta(hours=2, minutes=30),
+            "type": "meeting",
+            "priority": "medium"
+        },
+        {
+            "title": "Quarterly Report Deadline",
+            "start_time": now + timedelta(days=3),
+            "end_time": now + timedelta(days=3),
+            "type": "deadline",
+            "priority": "high"
+        },
+        {
+            "title": "Focus Time - Deep Work",
+            "start_time": now + timedelta(hours=4),
+            "end_time": now + timedelta(hours=5),
+            "type": "focus",
+            "priority": "low"
+        },
+        {
+            "title": "Client Presentation",
+            "start_time": now + timedelta(days=1, hours=10),
+            "end_time": now + timedelta(days=1, hours=11),
+            "type": "presentation",
+            "priority": "high"
+        }
+    ]
+    return sample_events
+
+def create_encouraging_reminder(event, reminder_type="upcoming"):
+    """Create encouraging, non-overwhelming reminders"""
+    
+    encouraging_messages = {
+        "upcoming": [
+            "🌟 You've got this! Your {event_type} is coming up in {time_until}",
+            "💪 Ready to shine? Your {event_type} starts in {time_until}",
+            "🎯 You're prepared and capable! {time_until} until your {event_type}",
+            "✨ Take a deep breath - you're going to do great! {time_until} until {event_type}",
+            "🚀 Your future self will thank you for being ready! {time_until} until {event_type}"
+        ],
+        "deadline": [
+            "📅 Gentle reminder: Your {event_type} is due in {time_until}",
+            "⏰ You're making great progress! {time_until} left for your {event_type}",
+            "🎯 One step at a time - you have {time_until} for your {event_type}",
+            "💡 Remember: progress over perfection! {time_until} until {event_type}",
+            "🌟 You're doing amazing work! {time_until} left for your {event_type}"
+        ],
+        "focus": [
+            "🧠 Time for some focused magic! Your {event_type} starts in {time_until}",
+            "🎧 Ready to dive deep? {time_until} until your {event_type}",
+            "⚡ Your brain is ready for this! {time_until} until {event_type}",
+            "🔋 Energy check: You've got this! {time_until} until {event_type}",
+            "🎯 Focus mode activated! {time_until} until your {event_type}"
+        ],
+        "meeting": [
+            "👥 Ready to connect? Your {event_type} starts in {time_until}",
+            "🤝 You bring valuable insights! {time_until} until your {event_type}",
+            "💬 Your voice matters! {time_until} until your {event_type}",
+            "🌟 You're going to contribute great ideas! {time_until} until {event_type}",
+            "🎯 Ready to collaborate? {time_until} until your {event_type}"
+        ]
+    }
+    
+    # Calculate time until event
+    from datetime import datetime
+    now = datetime.now()
+    time_diff = event["start_time"] - now
+    
+    if time_diff.total_seconds() < 3600:  # Less than 1 hour
+        time_until = f"{int(time_diff.total_seconds() / 60)} minutes"
+    elif time_diff.total_seconds() < 86400:  # Less than 1 day
+        time_until = f"{int(time_diff.total_seconds() / 3600)} hours"
+    else:  # More than 1 day
+        time_until = f"{int(time_diff.total_seconds() / 86400)} days"
+    
+    # Get event type for message
+    event_type_map = {
+        "meeting": "meeting",
+        "deadline": "deadline",
+        "focus": "focus session",
+        "presentation": "presentation"
+    }
+    event_type = event_type_map.get(event["type"], "event")
+    
+    # Select appropriate message
+    messages = encouraging_messages.get(reminder_type, encouraging_messages["upcoming"])
+    import random
+    message_template = random.choice(messages)
+    
+    return message_template.format(event_type=event_type, time_until=time_until)
+
+def send_calendar_reminder_to_slack(event, workspace, channel, reminder_type="upcoming"):
+    """Send calendar reminder to Slack with encouraging message"""
+    reminder_message = create_encouraging_reminder(event, reminder_type)
+    
+    # Format the Slack message
+    slack_message = f"""
+🧠 FocusCoach Calendar Reminder
+
+{reminder_message}
+
+📅 **Event**: {event['title']}
+⏰ **Time**: {event['start_time'].strftime('%I:%M %p')}
+📊 **Priority**: {event['priority'].title()}
+
+💡 **Gentle Tip**: Take a moment to prepare - you've got this!
+🎯 **Next**: Focus on what you can control right now
+    """
+    
+    return {
+        "success": True,
+        "message": f"Calendar reminder sent to #{channel}",
+        "reminder": reminder_message,
+        "slack_message": slack_message
+    }
 
 def get_gmail_deadlines(gmail_address):
     """Simulate getting deadlines from Gmail (demo version)"""
@@ -799,6 +1069,7 @@ def main():
             "Focus Sessions", 
             "Focus Techniques",
             "Gmail Integration",
+            "Slack Integration",
             "About FocusCoach"
         ], help="Select what you'd like to work on")
         
@@ -883,6 +1154,8 @@ def main():
         focus_techniques_page()
     elif page == "Gmail Integration":
         gmail_integration_page()
+    elif page == "Slack Integration":
+        slack_integration_page()
     elif page == "About FocusCoach":
         about_page()
 
@@ -949,19 +1222,24 @@ def task_breakdown_page():
     
     with col1:
         if st.button("🧹 Clean Room", help="Get 8 organization steps", key="clean_room"):
-            task = "clean my room"
+            st.session_state.clean_room_clicked = True
+            st.rerun()
     with col2:
         if st.button("📚 Study Exam", help="Get 10 study techniques", key="study_exam"):
-            task = "study for exam"
+            st.session_state.study_exam_clicked = True
+            st.rerun()
     with col3:
         if st.button("✍️ Blog Post", help="Get 10 writing steps", key="blog_post"):
-            task = "write a blog post"
+            st.session_state.blog_post_clicked = True
+            st.rerun()
     with col4:
         if st.button("🎤 Presentation", help="Get 10 presentation steps", key="presentation"):
-            task = "plan a presentation"
+            st.session_state.presentation_clicked = True
+            st.rerun()
     with col5:
         if st.button("💼 Job Interview", help="Get 10 interview prep steps", key="job_interview"):
-            task = "prepare for job interview"
+            st.session_state.job_interview_clicked = True
+            st.rerun()
     
     # Second row - Work tasks
     st.markdown("### 💼 Work Tasks")
@@ -969,19 +1247,24 @@ def task_breakdown_page():
     
     with col1:
         if st.button("📊 Quarterly Report", help="Get 15 detailed SEC-compliant steps", key="quarterly_report"):
-            task = "prepare quarterly report"
+            st.session_state.quarterly_report_clicked = True
+            st.rerun()
     with col2:
         if st.button("👥 Performance Review", help="Get 10 review steps", key="performance_review"):
-            task = "conduct performance review"
+            st.session_state.performance_review_clicked = True
+            st.rerun()
     with col3:
         if st.button("⏰ Project Deadline", help="Get 10 deadline management steps", key="project_deadline"):
-            task = "manage project deadline"
+            st.session_state.project_deadline_clicked = True
+            st.rerun()
     with col4:
         if st.button("💬 Difficult Conversation", help="Get 10 conversation steps", key="difficult_conversation"):
-            task = "handle difficult conversation"
+            st.session_state.difficult_conversation_clicked = True
+            st.rerun()
     with col5:
         if st.button("🤝 Team Meeting", help="Get 10 meeting prep steps", key="team_meeting"):
-            task = "prepare for team meeting"
+            st.session_state.team_meeting_clicked = True
+            st.rerun()
     
     # Third row - Business tasks
     st.markdown("### 🏢 Business Tasks")
@@ -989,19 +1272,24 @@ def task_breakdown_page():
     
     with col1:
         if st.button("📋 Project Proposal", help="Get 10 proposal steps", key="project_proposal"):
-            task = "create project proposal"
+            st.session_state.project_proposal_clicked = True
+            st.rerun()
     with col2:
         if st.button("😤 Customer Complaint", help="Get 10 complaint handling steps", key="customer_complaint"):
-            task = "handle customer complaint"
+            st.session_state.customer_complaint_clicked = True
+            st.rerun()
     with col3:
         if st.button("📈 Business Plan", help="Get detailed business planning steps", key="business_plan"):
-            task = "create business plan"
+            st.session_state.business_plan_clicked = True
+            st.rerun()
     with col4:
         if st.button("💰 Budget Planning", help="Get detailed budget steps", key="budget_planning"):
-            task = "create budget"
+            st.session_state.budget_planning_clicked = True
+            st.rerun()
     with col5:
         if st.button("📊 Data Analysis", help="Get detailed analysis steps", key="data_analysis"):
-            task = "analyze data"
+            st.session_state.data_analysis_clicked = True
+            st.rerun()
     
     # Task input with better design
     st.markdown("""
@@ -1018,15 +1306,81 @@ def task_breakdown_page():
         key="task_input"
     )
     
-    # Use quick test task if available, otherwise use input
-    if 'task' not in locals():
+    # Check if any quick test button was clicked
+    task = None
+    button_clicked = False
+    
+    # Check for button clicks and set task accordingly
+    if st.session_state.get('clean_room_clicked', False):
+        task = "clean my room"
+        button_clicked = True
+        st.session_state.clean_room_clicked = False
+    elif st.session_state.get('study_exam_clicked', False):
+        task = "study for exam"
+        button_clicked = True
+        st.session_state.study_exam_clicked = False
+    elif st.session_state.get('blog_post_clicked', False):
+        task = "write a blog post"
+        button_clicked = True
+        st.session_state.blog_post_clicked = False
+    elif st.session_state.get('presentation_clicked', False):
+        task = "plan a presentation"
+        button_clicked = True
+        st.session_state.presentation_clicked = False
+    elif st.session_state.get('job_interview_clicked', False):
+        task = "prepare for job interview"
+        button_clicked = True
+        st.session_state.job_interview_clicked = False
+    elif st.session_state.get('quarterly_report_clicked', False):
+        task = "prepare quarterly report"
+        button_clicked = True
+        st.session_state.quarterly_report_clicked = False
+    elif st.session_state.get('performance_review_clicked', False):
+        task = "conduct performance review"
+        button_clicked = True
+        st.session_state.performance_review_clicked = False
+    elif st.session_state.get('project_deadline_clicked', False):
+        task = "manage project deadline"
+        button_clicked = True
+        st.session_state.project_deadline_clicked = False
+    elif st.session_state.get('difficult_conversation_clicked', False):
+        task = "handle difficult conversation"
+        button_clicked = True
+        st.session_state.difficult_conversation_clicked = False
+    elif st.session_state.get('team_meeting_clicked', False):
+        task = "prepare for team meeting"
+        button_clicked = True
+        st.session_state.team_meeting_clicked = False
+    elif st.session_state.get('project_proposal_clicked', False):
+        task = "create project proposal"
+        button_clicked = True
+        st.session_state.project_proposal_clicked = False
+    elif st.session_state.get('customer_complaint_clicked', False):
+        task = "handle customer complaint"
+        button_clicked = True
+        st.session_state.customer_complaint_clicked = False
+    elif st.session_state.get('business_plan_clicked', False):
+        task = "create business plan"
+        button_clicked = True
+        st.session_state.business_plan_clicked = False
+    elif st.session_state.get('budget_planning_clicked', False):
+        task = "create budget"
+        button_clicked = True
+        st.session_state.budget_planning_clicked = False
+    elif st.session_state.get('data_analysis_clicked', False):
+        task = "analyze data"
+        button_clicked = True
+        st.session_state.data_analysis_clicked = False
+    
+    # Use input if no button was clicked
+    if not button_clicked:
         task = task_input
     
     # Break down button with better design
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("🚀 Break Down This Task", type="primary", use_container_width=True):
-            if task.strip():
+            if task and task.strip():
                 with st.spinner("Creating a neurodivergent-friendly plan..."):
                     # Get Gmail address from sidebar if connected
                     gmail_address = None
@@ -1045,6 +1399,25 @@ def task_breakdown_page():
                 display_task_breakdown(breakdown)
             else:
                 st.warning("Please enter a task to break down!")
+    
+    # Auto-trigger breakdown if button was clicked
+    if button_clicked and task and task.strip():
+        with st.spinner("Creating a neurodivergent-friendly plan..."):
+            # Get Gmail address from sidebar if connected
+            gmail_address = None
+            if st.session_state.gmail_connected:
+                # In a real app, this would come from the sidebar input
+                gmail_address = "demo@example.com"  # Demo Gmail address
+            
+            breakdown = demo_task_breakdown(task, st.session_state.user_context, gmail_address)
+            st.session_state.task_breakdown = breakdown
+        
+        # Track progress
+        if 'completed_tasks' not in st.session_state:
+            st.session_state.completed_tasks = 0
+        st.session_state.completed_tasks += 1
+        
+        display_task_breakdown(breakdown)
     
     # Show progress if tasks have been completed
     if st.session_state.get('completed_tasks', 0) > 0:
@@ -1268,6 +1641,194 @@ def gmail_integration_page():
     - **Data Privacy**: Your emails are never stored or shared
     - **Local Processing**: All analysis happens securely on your device
     """)
+
+def slack_integration_page():
+    """Slack integration for team collaboration"""
+    st.header("💬 Slack Integration")
+    
+    st.markdown("""
+    <div class="slack-integration">
+        <h3>💬 Share Your Task Plans</h3>
+        <p>Send your personalized task breakdowns directly to your team Slack channels for collaboration and accountability.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown("### 🚀 Benefits of Slack Integration")
+        st.markdown("""
+        - **Team Collaboration**: Share task breakdowns with your team
+        - **Accountability**: Public commitment to your goals
+        - **Progress Updates**: Regular updates on your progress
+        - **Team Support**: Get help and encouragement from colleagues
+        - **Workplace Integration**: Seamlessly fits into your work flow
+        - **Calendar Reminders**: Gentle, encouraging reminders for upcoming events
+        - **Smart Notifications**: Non-overwhelming alerts based on your schedule
+        """)
+        
+        st.markdown("### 🛠️ How It Works")
+        st.markdown("""
+        1. **Connect Workspace**: Link your Slack workspace
+        2. **Choose Channel**: Select where to share your plans
+        3. **Auto-Share**: Task breakdowns are automatically posted
+        4. **Calendar Integration**: Reads your calendar for upcoming events
+        5. **Smart Reminders**: Sends encouraging, non-overwhelming reminders
+        6. **Progress Updates**: Regular updates on your progress
+        7. **Team Engagement**: Colleagues can react and comment
+        """)
+    
+    with col2:
+        st.markdown("### 🔐 Security & Privacy")
+        st.markdown("""
+        - **Workspace Control**: You choose what to share
+        - **Channel Selection**: Pick appropriate channels
+        - **Content Control**: Review before sharing
+        - **Revocable**: Disconnect anytime
+        """)
+        
+        # Slack connection form
+        st.markdown("### 🔗 Connect Slack")
+        
+        workspace = st.text_input(
+            "Slack Workspace",
+            value=st.session_state.slack_workspace,
+            placeholder="your-company.slack.com",
+            help="Enter your Slack workspace URL"
+        )
+        
+        channel = st.text_input(
+            "Channel Name",
+            value=st.session_state.slack_channel,
+            placeholder="#general",
+            help="Enter the channel name (with #)"
+        )
+        
+        # Calendar integration options
+        st.markdown("### 📅 Calendar Integration")
+        enable_calendar = st.checkbox(
+            "Enable Calendar Reminders",
+            value=True,
+            help="Send gentle reminders for upcoming calendar events"
+        )
+        
+        reminder_frequency = st.selectbox(
+            "Reminder Frequency",
+            ["15 minutes before", "30 minutes before", "1 hour before", "2 hours before"],
+            help="How far in advance to send reminders"
+        )
+        
+        if st.button("💬 Connect Slack", type="primary", key="connect_slack"):
+            if workspace and channel:
+                st.session_state.slack_connected = True
+                st.session_state.slack_workspace = workspace
+                st.session_state.slack_channel = channel
+                st.session_state.calendar_reminders_enabled = enable_calendar
+                st.session_state.reminder_frequency = reminder_frequency
+                st.success("Slack connected! (Demo mode)")
+            else:
+                st.warning("Please enter both workspace and channel")
+    
+    # Show connected status
+    if st.session_state.slack_connected:
+        st.markdown("### ✅ Connected")
+        st.info(f"Slack integration is active. Task breakdowns will be shared in {st.session_state.slack_channel} on {st.session_state.slack_workspace}")
+        
+        # Calendar integration status
+        if st.session_state.get('calendar_reminders_enabled', False):
+            st.success(f"📅 Calendar reminders enabled - {st.session_state.get('reminder_frequency', '30 minutes before')}")
+        
+        # Show upcoming calendar events
+        st.markdown("### 📅 Upcoming Calendar Events")
+        calendar_events = get_calendar_events()
+        
+        for event in calendar_events:
+            priority_emoji = "🔴" if event["priority"] == "high" else "🟡" if event["priority"] == "medium" else "🟢"
+            event_emoji = {
+                "meeting": "👥",
+                "deadline": "📅", 
+                "focus": "🧠",
+                "presentation": "🎤"
+            }.get(event["type"], "📅")
+            
+            col1, col2, col3 = st.columns([3, 2, 1])
+            with col1:
+                st.markdown(f"{event_emoji} **{event['title']}**")
+            with col2:
+                st.markdown(f"⏰ {event['start_time'].strftime('%I:%M %p')}")
+            with col3:
+                st.markdown(f"{priority_emoji} {event['priority'].title()}")
+        
+        # Show sample of what would be shared
+        st.markdown("### 📤 Sample Slack Messages")
+        
+        # Task breakdown sample
+        st.markdown("**Task Breakdown Message:**")
+        st.markdown("""
+        ```
+        🧠 FocusCoach Task Breakdown
+        
+        📋 Task: Prepare Quarterly Report
+        ⏰ Estimated Time: 4-6 hours
+        📅 Deadline: January 15, 2024
+        
+        📝 Steps:
+        1. Create Cover Page (10 min)
+        2. Gather Financial Data (45 min)
+        3. Write MD&A Section (90 min)
+        ...
+        
+        💡 Tips: Use noise-canceling headphones for focus sessions
+        🎯 Next: Start with the cover page - it's the easiest first step!
+        ```
+        """)
+        
+        # Calendar reminder sample
+        st.markdown("**Calendar Reminder Message:**")
+        sample_event = calendar_events[0]  # Use first event as example
+        sample_reminder = create_encouraging_reminder(sample_event, "upcoming")
+        st.markdown(f"""
+        ```
+        🧠 FocusCoach Calendar Reminder
+        
+        {sample_reminder}
+        
+        📅 **Event**: {sample_event['title']}
+        ⏰ **Time**: {sample_event['start_time'].strftime('%I:%M %p')}
+        📊 **Priority**: {sample_event['priority'].title()}
+        
+        💡 **Gentle Tip**: Take a moment to prepare - you've got this!
+        🎯 **Next**: Focus on what you can control right now
+        ```
+        """)
+        
+        # Test buttons
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📤 Test Task Share", key="test_task_share"):
+                result = send_to_slack("Sample task breakdown", st.session_state.slack_workspace, st.session_state.slack_channel)
+                st.success(result["message"])
+        
+        with col2:
+            if st.button("📅 Test Calendar Reminder", key="test_calendar_reminder"):
+                sample_event = calendar_events[0]
+                result = send_calendar_reminder_to_slack(sample_event, st.session_state.slack_workspace, st.session_state.slack_channel)
+                st.success(result["message"])
+                st.info(f"Reminder: {result['reminder']}")
+    
+    else:
+        st.markdown("### 💬 Slack Integration Demo")
+        st.info("This is a demo version. In the full version, you would connect your actual Slack workspace.")
+        
+        # Show benefits
+        st.markdown("### 🎯 Why Slack Integration?")
+        st.markdown("""
+        - **Neurodivergent-Friendly**: Reduces social anxiety by making goals public
+        - **Team Support**: Colleagues can offer help and encouragement
+        - **Accountability**: Public commitment helps with follow-through
+        - **Workplace Integration**: Fits naturally into professional workflows
+        - **Progress Visibility**: Team can see your achievements
+        """)
 
 def about_page():
     """About FocusCoach"""
